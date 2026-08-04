@@ -1,0 +1,8 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="VintageWindowsLauncher/VintageWindowsLauncher.vcxproj" Id="12c44c58-cceb-4b1e-87c4-52530d590987" />
+  <Project Path="VintageWindowsProc/VintageWindowsProc.vcxproj" Id="d8e6543f-203b-4620-90c3-7d0426366b89" />
+</Solution>

@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{12c44c58-cceb-4b1e-87c4-52530d590987}</ProjectGuid>
+    <RootNamespace>VintageWindowsLauncher</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\out\$(ProjectName).$(Platform)$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)64</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>..\bin\</OutDir>
+    <IntDir>..\out\$(ProjectName).$(Platform)$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)32</TargetName>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+    <Manifest>
+      <EnableSegmentHeap>true</EnableSegmentHeap>
+    </Manifest>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\w32oop\Concurrency\EventObject.cpp" />
+    <ClCompile Include="..\..\w32oop\Concurrency\Process.cpp" />
+    <ClCompile Include="..\..\w32oop\Concurrency\Thread.cpp" />
+    <ClCompile Include="..\..\w32oop\GUI\FoundationLib.cpp" />
+    <ClCompile Include="..\..\w32oop\GUI\Menu.cpp" />
+    <ClCompile Include="..\..\w32oop\GUI\TrayIcon.cpp" />
+    <ClCompile Include="..\..\w32oop\GUI\Window.cpp" />
+    <ClCompile Include="..\..\w32oop\IO\File.cpp" />
+    <ClCompile Include="..\..\w32oop\IO\PipeClient.cpp" />
+    <ClCompile Include="..\..\w32oop\IO\PipeServer.cpp" />
+    <ClCompile Include="..\..\w32oop\Network\HttpRequest.cpp" />
+    <ClCompile Include="..\..\w32oop\Network\HttpResponse.cpp" />
+    <ClCompile Include="..\..\w32oop\System\Hooks.cpp" />
+    <ClCompile Include="..\..\w32oop\System\Registry.cpp" />
+    <ClCompile Include="..\..\w32oop\System\Service.cpp" />
+    <ClCompile Include="VintageWindowsLauncher.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\w32oop\Concurrency\def.hpp" />
+    <ClInclude Include="..\..\w32oop\Concurrency\EventObject.hpp" />
+    <ClInclude Include="..\..\w32oop\Concurrency\Joinable.hpp" />
+    <ClInclude Include="..\..\w32oop\Concurrency\Process.hpp" />
+    <ClInclude Include="..\..\w32oop\Concurrency\Thread.hpp" />
+    <ClInclude Include="..\..\w32oop\Core\publicdef.hpp" />
+    <ClInclude Include="..\..\w32oop\Core\version.hpp" />
+    <ClInclude Include="..\..\w32oop\Core\w32def.hpp" />
+    <ClInclude Include="..\..\w32oop\Core\w32handle.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\def.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\FoundationLib.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\InternalMessageBox.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\Menu.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\TrayIcon.hpp" />
+    <ClInclude Include="..\..\w32oop\GUI\Window.hpp" />
+    <ClInclude Include="..\..\w32oop\IO\def.hpp" />
+    <ClInclude Include="..\..\w32oop\IO\File.hpp" />
+    <ClInclude Include="..\..\w32oop\IO\PipeClient.hpp" />
+    <ClInclude Include="..\..\w32oop\IO\PipeServer.hpp" />
+    <ClInclude Include="..\..\w32oop\Network\def.hpp" />
+    <ClInclude Include="..\..\w32oop\Network\HttpRequest.hpp" />
+    <ClInclude Include="..\..\w32oop\Network\HttpResponse.hpp" />
+    <ClInclude Include="..\..\w32oop\System\def.hpp" />
+    <ClInclude Include="..\..\w32oop\System\Hooks.hpp" />
+    <ClInclude Include="..\..\w32oop\System\Registry.hpp" />
+    <ClInclude Include="..\..\w32oop\System\Service.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\def.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\ErrCheck.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\Memory.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\RAII.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\StringUtil\converts.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\StringUtil\def.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\StringUtil\encodings.hpp" />
+    <ClInclude Include="..\..\w32oop\Utility\StringUtil\operations.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
