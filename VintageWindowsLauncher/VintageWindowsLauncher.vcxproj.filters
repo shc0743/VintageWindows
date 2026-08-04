@@ -170,5 +170,13 @@
     <ClInclude Include="..\..\w32oop\Utility\StringUtil\operations.hpp">
       <Filter>w32oop</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="VintageWindowsLauncher.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@
 #include <commctrl.h>
 #include <uxtheme.h>
 #include <tlhelp32.h>
+#include <fstream>
 #pragma comment(lib, "uxtheme.lib")
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' \
@@ -17,6 +18,7 @@ set<wstring> targets;
 set<DWORD> has_disabled_visual_styles_pid;
 HWINEVENTHOOK g_hEventHook;
 LPTHREAD_START_ROUTINE setthemeappptr;
+bool matchAny;
 
 #pragma region 豆包
 
@@ -136,7 +138,7 @@ void CALLBACK WinEventProc(
 		GetWindowThreadProcessId(hwnd, &owner_pid);
 		auto name = GetProcessNameByPid(owner_pid);
 		if (name.empty()) break;
-		if (!targets.contains(name) && !targets.contains(to_wstring(owner_pid))) {
+		if (!matchAny) if (!targets.contains(name) && !targets.contains(to_wstring(owner_pid))) {
 			break;
 		}
 
@@ -162,15 +164,28 @@ void CALLBACK WinEventProc(
 
 class VintageWindowsLauncher : public Window {
 public:
-	VintageWindowsLauncher() : Window(L"Vintage Windows Launcher", 480, 320, 0, 0, WS_OVERLAPPEDWINDOW) {}
+	VintageWindowsLauncher() : Window(L"Vintage Windows Launcher", 640, 480, 0, 0, WS_OVERLAPPEDWINDOW) {}
 protected:
+	wstring appPath;
 	CheckBox enabled;
 	Edit processes;
 	void onCreated() override {
+		auto buffer = make_unique<WCHAR[]>(32768);
+		GetModuleFileNameW(GetModuleHandleW(NULL), buffer.get(), 32768);
+		appPath = buffer.get();
+
 		enabled.set_parent(this);
 		enabled.create(L"Enable Vintage Windows", 1, 1);
 		processes.set_parent(this);
-		processes.create(L"# Enter process name or id here, one row one process\r\n", 1, 1, 0, 0, WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL);
+		processes.create(L"# Enter process name or id here, one row one process\r\n# Input only \"*\" to match ALL processes on your computer! (Be careful!)\r\n\r\n",
+			1, 1, 0, 0, WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | WS_HSCROLL | WS_VSCROLL);
+
+		ifstream fp(appPath + L".list.txt", ios::in | ios::binary);
+		if (fp) {
+			auto buffer = make_unique<char[]>(65537);
+			fp.read((buffer.get()), 65536);
+			processes.text(w32oop::util::str::encodings::utf8_utf16(buffer.get()));
+		}
 
 		enabled.onChanged([this](EventData& ev) {
 			if (enabled.checked()) {
@@ -178,16 +193,18 @@ protected:
 				targets.clear();
 				wstring txt = processes.text();
 				vector<wstring>dest;
+				matchAny = false;
 				w32oop::util::str::operations::split(txt, L"\r\n", dest);
 				for (const auto& i : dest) {
 					if (i.empty() || i.starts_with(L"#")) continue;
+					if (i == L"*") matchAny = true;
 					targets.insert(i);
 				}
 				isEnabled = true;
 				SetEvent(hUpdateEvent);
 			}
 			else {
-				isEnabled = false;
+				isEnabled = matchAny = false;
 				targets.clear();
 				SetEvent(hUpdateEvent);
 				MessageBoxTimeoutW(hwnd, L"You might need to restart the impacted applications", L"Oh no!", MB_ICONWARNING, 0, 500);
@@ -200,9 +217,18 @@ protected:
 		enabled.resize(0, 0, rc.right - rc.left, 30);
 		processes.resize(0, 30, rc.right - rc.left, rc.bottom - rc.top - 30);
 	}
+	void onBeforeClose(EventData&) {
+		ofstream fp(appPath + L".list.txt", ios::out | ios::binary);
+		if (fp) {
+			wstring t = processes.text();
+			string u8 = w32oop::util::str::encodings::utf16_utf8(t);
+			fp.write(u8.data(), u8.size());
+		}
+	}
 	virtual void setup_event_handlers() override {
 		WINDOW_add_handler(WM_SIZING, onResize);
 		WINDOW_add_handler(WM_SIZE, onResize);
+		WINDOW_add_handler(WM_CLOSE, onBeforeClose);
 	}
 };
 
@@ -212,7 +238,7 @@ int WINAPI wWinMain(
 	_In_ PWSTR pCmdLine,
 	_In_ int nCmdShow
 ) {
-	SetThemeAppProperties(0);
+	SetThemeAppProperties(1);
 	HHOOK hHook = SetWindowsHookExW(WH_CBT, [](int nCode, WPARAM wParam, LPARAM lParam) -> LRESULT {
 		if (nCode == HCBT_CREATEWND || nCode == HCBT_ACTIVATE) {
 			HWND hWnd = (HWND)wParam;
@@ -221,6 +247,37 @@ int WINAPI wWinMain(
 		return CallNextHookEx(nullptr, nCode, wParam, lParam);
 	}, nullptr, GetCurrentThreadId());
 	// Running your app
+	if (HWND prev = FindWindowW(VintageWindowsLauncher().get_class_name().c_str(), NULL)) {
+		const auto focus = [prev] {
+			SetForegroundWindow(prev);
+			return 0;
+		};
+
+		HWND fg = GetForegroundWindow();
+		if (!fg) return focus(); // fallback to normal focus
+		DWORD pid = 0;
+		GetWindowThreadProcessId(fg, &pid);
+		if (!pid || pid == GetCurrentProcessId()) return focus();
+		HMODULE user32 = GetModuleHandleW(L"user32.dll");
+		if (!user32) return focus();
+		LPTHREAD_START_ROUTINE AllowSetForegroundWindow = (LPTHREAD_START_ROUTINE)GetProcAddress(user32, "AllowSetForegroundWindow");
+		if (!AllowSetForegroundWindow) return focus();
+		HANDLE hProcess = OpenProcess(
+			PROCESS_CREATE_THREAD | PROCESS_QUERY_INFORMATION |
+			PROCESS_VM_OPERATION | PROCESS_VM_WRITE | PROCESS_VM_READ,
+			FALSE, pid
+		);
+		if (!hProcess) return focus();
+		HANDLE hThread = CreateRemoteThread(hProcess, NULL, 0, AllowSetForegroundWindow, (LPVOID)(size_t)GetCurrentProcessId(), CREATE_SUSPENDED, NULL);
+		CloseHandle(hProcess);
+		if (!hThread) return focus();
+		ResumeThread(hThread);
+		WaitForSingleObject(hThread, 1000);
+		DWORD exitCode = 0;
+		GetExitCodeThread(hThread, &exitCode);
+		CloseHandle(hThread);
+		return focus();
+	}
 	HMODULE ux = LoadLibraryW(L"Uxtheme.dll");
 	if (ux) {
 		setthemeappptr = (LPTHREAD_START_ROUTINE)GetProcAddress(ux, "SetThemeAppProperties");
