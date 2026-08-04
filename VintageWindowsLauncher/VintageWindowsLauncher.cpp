@@ -133,6 +133,7 @@ void CALLBACK WinEventProc(
 	if (!hwnd || !isEnabled) return;
 	switch (event) {
 	case EVENT_OBJECT_CREATE:
+	case EVENT_OBJECT_SHOW:
 	{
 		DWORD owner_pid{};
 		GetWindowThreadProcessId(hwnd, &owner_pid);
@@ -141,8 +142,6 @@ void CALLBACK WinEventProc(
 		if (!matchAny) if (!targets.contains(name) && !targets.contains(to_wstring(owner_pid))) {
 			break;
 		}
-
-		SetWindowTheme(hwnd, L"", L"");
 
 		if (setthemeappptr && !has_disabled_visual_styles_pid.contains(owner_pid)) {
 			// off the app
@@ -154,6 +153,14 @@ void CALLBACK WinEventProc(
 					if (rem) CloseHandle(rem);
 				}
 				has_disabled_visual_styles_pid.insert(owner_pid);
+			}
+		}
+
+		if (!SUCCEEDED(SetWindowTheme(hwnd, L"", L""))) {
+			HWND parent = GetParent(hwnd);
+			if (!parent) {
+				Sleep(10);
+				SetWindowTheme(hwnd, L"", L"");
 			}
 		}
 	}
