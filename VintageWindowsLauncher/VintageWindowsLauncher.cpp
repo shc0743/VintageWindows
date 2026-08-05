@@ -142,6 +142,7 @@ DWORD WINAPI messageposterworker(PVOID) {
 #pragma warning(disable: 6258)
 DWORD WINAPI worker(PVOID) {
 	mpwevent = CreateEventW(0, 0, 0, 0);
+	if (!mpwevent) __fastfail(2);
 	HANDLE hmpw = CreateThread(0, 0, messageposterworker, 0, 0, 0);
 	if (!hmpw) __fastfail(2);
 
@@ -173,9 +174,10 @@ DWORD WINAPI worker(PVOID) {
 						// send message time out
 						TerminateThread(hmpw, ERROR_TIMEOUT);
 						CloseHandle(hmpw);
-						if (prevlen != needpost.size()) needpost.pop_back();
+						if (prevlen < needpost.size()) needpost.pop_back();
 						hmpw = CreateThread(0, 0, messageposterworker, 0, 0, 0);
 						if (!hmpw) __fastfail(2);
+						mpwisreading = mpwiswriting = false;
 					}
 					CloseHandle(cb);
 				}
