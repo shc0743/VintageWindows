@@ -2,6 +2,7 @@
 #include <commctrl.h>
 #include <uxtheme.h>
 #include <tlhelp32.h>
+#include <Shlobj.h>
 #include <fstream>
 #pragma comment(lib, "uxtheme.lib")
 
@@ -15,10 +16,13 @@ bool running;
 HANDLE hUpdateEvent;
 bool isEnabled;
 set<wstring> targets;
+set<wstring> exclude_targets;
 set<DWORD> has_disabled_visual_styles_pid;
 HWINEVENTHOOK g_hEventHook;
 LPTHREAD_START_ROUTINE setthemeappptr;
 bool matchAny;
+const time_t has_disabled_visual_styles_pid_max_age = 300;
+time_t has_disabled_visual_styles_pid_fresh = 0;
 
 #pragma region 豆包
 
@@ -139,7 +143,12 @@ void CALLBACK WinEventProc(
 		GetWindowThreadProcessId(hwnd, &owner_pid);
 		auto name = GetProcessNameByPid(owner_pid);
 		if (name.empty()) break;
-		if (!matchAny) if (!targets.contains(name) && !targets.contains(to_wstring(owner_pid))) {
+		if (!matchAny) {
+			if (!targets.contains(name) && !targets.contains(to_wstring(owner_pid))) {
+				break;
+			}
+		}
+		else if (exclude_targets.contains(name) || exclude_targets.contains(to_wstring(owner_pid))) {
 			break;
 		}
 
@@ -153,6 +162,7 @@ void CALLBACK WinEventProc(
 					if (rem) CloseHandle(rem);
 				}
 				has_disabled_visual_styles_pid.insert(owner_pid);
+				CloseHandle(hProcess);
 			}
 		}
 
@@ -171,12 +181,18 @@ void CALLBACK WinEventProc(
 
 class VintageWindowsLauncher : public Window {
 public:
-	VintageWindowsLauncher() : Window(L"Vintage Windows Launcher", 640, 480, 0, 0, WS_OVERLAPPEDWINDOW) {}
+	VintageWindowsLauncher() : Window(L"", 640, 480, 0, 0, WS_OVERLAPPEDWINDOW) {}
 protected:
 	wstring appPath;
 	CheckBox enabled;
 	Edit processes;
 	void onCreated() override {
+		wstring title = L"Vintage Windows Launcher";
+		text(title);
+		if (IsUserAnAdmin()) {
+			text(L"[Administrator] " + title);
+		}
+
 		auto buffer = make_unique<WCHAR[]>(32768);
 		GetModuleFileNameW(GetModuleHandleW(NULL), buffer.get(), 32768);
 		appPath = buffer.get();
@@ -184,7 +200,13 @@ protected:
 		enabled.set_parent(this);
 		enabled.create(L"Enable Vintage Windows", 1, 1);
 		processes.set_parent(this);
-		processes.create(L"# Enter process name or id here, one row one process\r\n# Input only \"*\" to match ALL processes on your computer! (Be careful!)\r\n\r\n",
+		processes.create(L"# Enter process name or id here, one row one process\r\n"
+			L"# Input only \"*\" to match ALL processes on your computer! (Be careful!)\r\n"
+			L"# Use !<process> to exclude a process! \r\n# (If process name includes ! or = please use \"=<process>\")\r\n"
+			L"# If some program seems not to be affected please run as admin\r\n\r\n"
+			L"# Write your own rules here!!\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n"
+			L"# Default rules\r\n!csrss.exe\r\n!winlogon.exe\r\n!fontdrvhost.exe\r\n!dwm.exe\r\n!explorer.exe\r\n!svchost.exe\r\n!SearchHost.exe\r\n!msedgewebview2.exe\r\n!StartMenuExperienceHost.exe\r\n!Widgets.exe\r\n!RuntimeBroker.exe\r\n!TextInputHost.exe\r\n!ShellExperienceHost.exe\r\n!ApplicationFrameHost.exe\r\n!SystemSettings.exe\r\n"
+			L"\r\n\r\n",
 			1, 1, 0, 0, WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL | ES_MULTILINE | ES_WANTRETURN | ES_AUTOVSCROLL | WS_HSCROLL | WS_VSCROLL);
 
 		ifstream fp(appPath + L".list.txt", ios::in | ios::binary);
@@ -198,14 +220,24 @@ protected:
 			if (enabled.checked()) {
 				processes.disable();
 				targets.clear();
+				exclude_targets.clear();
 				wstring txt = processes.text();
-				vector<wstring>dest;
+				vector<wstring> dest;
 				matchAny = false;
 				w32oop::util::str::operations::split(txt, L"\r\n", dest);
 				for (const auto& i : dest) {
 					if (i.empty() || i.starts_with(L"#")) continue;
-					if (i == L"*") matchAny = true;
-					targets.insert(i);
+					auto firstChar = i[0];
+					if (firstChar == L'*') matchAny = true;
+					else if (firstChar == L'=') {
+						if (i.length() < 2) continue;
+						targets.insert(i.substr(1));
+					}
+					else if (firstChar == L'!') {
+						if (i.length() < 2) continue;
+						exclude_targets.insert(i.substr(1));
+					}
+					else targets.insert(i);
 				}
 				isEnabled = true;
 				SetEvent(hUpdateEvent);
@@ -213,11 +245,14 @@ protected:
 			else {
 				isEnabled = matchAny = false;
 				targets.clear();
+				exclude_targets.clear();
 				SetEvent(hUpdateEvent);
 				MessageBoxTimeoutW(hwnd, L"You might need to restart the impacted applications", L"Oh no!", MB_ICONWARNING, 0, 500);
 				processes.enable();
 			}
 		});
+
+		SetTimer(hwnd, 1, 10000, NULL);
 	}
 	void onResize(EventData&) {
 		RECT rc{}; GetClientRect(hwnd, &rc);
@@ -232,10 +267,27 @@ protected:
 			fp.write(u8.data(), u8.size());
 		}
 	}
+	void onTimer(EventData& ev) {
+		switch (ev.wParam) {
+		case 1:
+		{
+			time_t now = time(0);
+			if (now - has_disabled_visual_styles_pid_fresh > has_disabled_visual_styles_pid_max_age) {
+				has_disabled_visual_styles_pid.clear();
+				has_disabled_visual_styles_pid_fresh = now;
+			}
+		}
+			break;
+		default:
+			return;
+		}
+		ev.preventDefault();
+	}
 	virtual void setup_event_handlers() override {
 		WINDOW_add_handler(WM_SIZING, onResize);
 		WINDOW_add_handler(WM_SIZE, onResize);
 		WINDOW_add_handler(WM_CLOSE, onBeforeClose);
+		WINDOW_add_handler(WM_TIMER, onTimer);
 	}
 };
 
