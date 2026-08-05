@@ -66,6 +66,9 @@
     <ClCompile Include="..\..\w32oop\System\Service.cpp">
       <Filter>w32oop</Filter>
     </ClCompile>
+    <ClCompile Include="inject.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\w32oop\Concurrency\def.hpp">
@@ -171,6 +174,9 @@
       <Filter>w32oop</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="inject.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -5,6 +5,12 @@
     {
       "AbsoluteMoniker": "D:0:0:{12C44C58-CCEB-4B1E-87C4-52530D590987}|VintageWindowsLauncher\\VintageWindowsLauncher.vcxproj|E:\\Users\\shc07\\Code\\git\\github.com\\shc0743\\VintageWindows\\VintageWindowsLauncher\\VintageWindowsLauncher.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{12C44C58-CCEB-4B1E-87C4-52530D590987}|VintageWindowsLauncher\\VintageWindowsLauncher.vcxproj|solutionrelative:VintageWindowsLauncher\\VintageWindowsLauncher.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include\\mutex||{3B902123-F8A7-4915-9F01-361F908088D0}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\crt\\src\\stl\\mutex.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,8 +20,34 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 2,
           "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "mutex",
+              "DocumentMoniker": "E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include\\mutex",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include\\mutex",
+              "ToolTip": "E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include\\mutex",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\include\\mutex",
+              "ViewState": "AgIAAKYBAAAAAAAAAAAAwLgBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2026-08-05T07:33:40.106Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "mutex.cpp",
+              "DocumentMoniker": "E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\crt\\src\\stl\\mutex.cpp",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\crt\\src\\stl\\mutex.cpp",
+              "ToolTip": "E:\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\crt\\src\\stl\\mutex.cpp",
+              "RelativeToolTip": "..\\..\\..\\..\\..\\..\\..\\Program Files\\Microsoft Visual Studio\\18\\Community\\VC\\Tools\\MSVC\\14.51.36231\\crt\\src\\stl\\mutex.cpp",
+              "ViewState": "AgIAAI4AAAAAAAAAAAAiwKEAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2026-08-05T07:33:24.738Z",
+              "EditorCaption": ""
+            },
             {
               "$type": "Document",
               "DocumentIndex": 0,
@@ -24,7 +56,7 @@
               "RelativeDocumentMoniker": "VintageWindowsLauncher\\VintageWindowsLauncher.cpp",
               "ToolTip": "E:\\Users\\shc07\\Code\\git\\github.com\\shc0743\\VintageWindows\\VintageWindowsLauncher\\VintageWindowsLauncher.cpp",
               "RelativeToolTip": "VintageWindowsLauncher\\VintageWindowsLauncher.cpp",
-              "ViewState": "AgIAAMMAAAAAAAAAAAAAAM4AAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAI4AAADAOpD11IotwJ4AAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2026-08-04T19:49:21.697Z",
               "EditorCaption": ""

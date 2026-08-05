@@ -4,6 +4,8 @@
 #include <tlhelp32.h>
 #include <Shlobj.h>
 #include <fstream>
+#include <deque>
+#include "inject.h"
 #pragma comment(lib, "uxtheme.lib")
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' \
@@ -23,6 +25,12 @@ LPTHREAD_START_ROUTINE setthemeappptr;
 bool matchAny;
 const time_t has_disabled_visual_styles_pid_max_age = 300;
 time_t has_disabled_visual_styles_pid_fresh = 0;
+struct taskinfo {
+	int tasktype;
+	char taskdata[256 - sizeof(int)]{};
+};
+deque<taskinfo> tasks;
+recursive_mutex tasks_lock;
 
 #pragma region 豆包
 
@@ -105,25 +113,85 @@ std::wstring GetProcessNameByPid(DWORD pid)
 #pragma endregion
 
 
-DWORD WINAPI worker(PVOID) {
-	bool previouslyRunning = false;
+struct mpwdata { HWND hwnd; HANDLE cb; };
+vector<mpwdata> needpost;
+volatile bool mpwisreading = false;
+volatile bool mpwiswriting = false;
+HANDLE mpwevent;
+
+DWORD WINAPI messageposterworker(PVOID) {
 	while (running) {
-		if (isEnabled != previouslyRunning) {
-			if (isEnabled == true) {
-				// turn on
+		vector<mpwdata> copy;
+		while (mpwiswriting) Sleep(1);
+		mpwisreading = true;
+		{
+			copy = needpost;
+			needpost.clear();
+		}
+		mpwisreading = false;
+		for (auto& i : copy) {
+			SetWindowTheme(i.hwnd, L"", L"");
+			if (i.cb) SetEvent(i.cb);
+		}
+		WaitForSingleObject(mpwevent, INFINITE);
+	}
+	return 0;
+}
 
+#pragma warning(push)
+#pragma warning(disable: 6258)
+DWORD WINAPI worker(PVOID) {
+	mpwevent = CreateEventW(0, 0, 0, 0);
+	HANDLE hmpw = CreateThread(0, 0, messageposterworker, 0, 0, 0);
+	if (!hmpw) __fastfail(2);
+
+	while (running) {
+		if (tasks.size()) {
+			deque<taskinfo> copy;
+			{
+				lock_guard gg(tasks_lock);
+				copy = tasks;
+				tasks.clear();
 			}
-			else {
-				// off
-
+			for (auto& i : copy) {
+				switch (i.tasktype) {
+				case 1:
+				{
+					// set theme
+					HWND hwnd{};
+					memcpy(&hwnd, i.taskdata, sizeof(hwnd));
+					HANDLE cb = CreateEventW(0, 1, 0, 0);
+					if (!cb) __fastfail(2);
+					while (mpwisreading) Sleep(1);
+					mpwiswriting = true;
+					mpwdata mpwd{ .hwnd = hwnd,.cb = cb };
+					size_t prevlen = needpost.size();
+					needpost.push_back(mpwd);
+					mpwiswriting = false;
+					SetEvent(mpwevent);
+					if (WAIT_TIMEOUT == WaitForSingleObject(cb, 1000)) {
+						// send message time out
+						TerminateThread(hmpw, ERROR_TIMEOUT);
+						CloseHandle(hmpw);
+						if (prevlen != needpost.size()) needpost.pop_back();
+						hmpw = CreateThread(0, 0, messageposterworker, 0, 0, 0);
+						if (!hmpw) __fastfail(2);
+					}
+					CloseHandle(cb);
+				}
+				break;
+				}
 			}
 		}
 		
 		WaitForSingleObject(hUpdateEvent, INFINITE);
 	}
 
+	TerminateThread(hmpw, 0);
+	CloseHandle(hmpw);
 	return 0;
 }
+#pragma warning(pop)
 
 void CALLBACK WinEventProc(
 	HWINEVENTHOOK hWinEventHook,
@@ -158,6 +226,7 @@ void CALLBACK WinEventProc(
 			if (hProcess) {
 				BOOL wow{}; IsWow64Process(hProcess, &wow);
 				if (wow == false) {
+					InjectDllToProcess_HANDLE(hProcess, L"Uxtheme.dll");
 					HANDLE rem = CreateRemoteThread(hProcess, 0, 0, setthemeappptr, (PVOID)0, 0, 0);
 					if (rem) CloseHandle(rem);
 				}
@@ -166,13 +235,13 @@ void CALLBACK WinEventProc(
 			}
 		}
 
-		if (!SUCCEEDED(SetWindowTheme(hwnd, L"", L""))) {
-			HWND parent = GetParent(hwnd);
-			if (!parent) {
-				Sleep(10);
-				SetWindowTheme(hwnd, L"", L"");
-			}
-		}
+		lock_guard gg(tasks_lock);
+		taskinfo info{
+			.tasktype = 1,
+		};
+		memcpy(info.taskdata, &hwnd, sizeof(hwnd));
+		tasks.push_back(info);
+		SetEvent(hUpdateEvent);
 	}
 		break;
 	default:;

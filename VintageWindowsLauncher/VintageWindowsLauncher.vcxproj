@@ -168,6 +168,7 @@
     <ClCompile Include="..\..\w32oop\System\Hooks.cpp" />
     <ClCompile Include="..\..\w32oop\System\Registry.cpp" />
     <ClCompile Include="..\..\w32oop\System\Service.cpp" />
+    <ClCompile Include="inject.c" />
     <ClCompile Include="VintageWindowsLauncher.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -205,6 +206,7 @@
     <ClInclude Include="..\..\w32oop\Utility\StringUtil\def.hpp" />
     <ClInclude Include="..\..\w32oop\Utility\StringUtil\encodings.hpp" />
     <ClInclude Include="..\..\w32oop\Utility\StringUtil\operations.hpp" />
+    <ClInclude Include="inject.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
